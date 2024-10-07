@@ -4,6 +4,7 @@
 
 #include "Scene.h"
 #include "../interface/camera/CameraAnchor.h"
+#include "entity/springModel/SpringModel.h"
 
 Scene::Scene(AppContext &appContext) : appContext(appContext) {
     appContext.camera = std::make_unique<CameraAnchor>(1920, 1080, glm::vec3(0.0f, 3.0f, 3.0f), glm::vec3(0.f), glm::vec3(-M_PI / 4, 0, 0));
@@ -19,14 +20,19 @@ Scene::Scene(AppContext &appContext) : appContext(appContext) {
 
     appContext.quad = std::make_unique<Quad>();
     appContext.light = std::make_unique<PointLight>();
-    appContext.light->position = {0.0f , 0.0f, 0.25f};
+    appContext.light->position = {0.5f , 0.5f, 0.5f};
     appContext.lightBulb = std::make_unique<Point>();
+
+    appContext.springModel = std::make_unique<SpringModel>(0.5, 1);
 }
 
 void Scene::update() {
     // TODO --- Here goes scene data update.
     appContext.lightBulb->position = appContext.light->position;
     appContext.lightBulb->color = glm::vec4(appContext.light->color, 1);
+
+    float time = glfwGetTime();
+    appContext.springModel->update(0.5*std::sin(time));
 }
 
 void Scene::render() {
@@ -42,7 +48,8 @@ void Scene::render() {
     appContext.phongShader->setUniform("material.albedo", glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
     appContext.phongShader->setUniform("material.shininess", 256.f);
     appContext.light->setupPointLight(*appContext.phongShader);
-    appContext.quad->render();
+
+    appContext.springModel->render(*appContext.phongShader);
 
     appContext.pointShader->use();
     appContext.pointShader->setUniform("view", appContext.camera->getViewMatrix());

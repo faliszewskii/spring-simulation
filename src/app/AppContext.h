@@ -12,6 +12,9 @@
 #include "../opengl/shader/Shader.h"
 #include "entity/light/PointLight.h"
 #include "entity/point/Point.h"
+#include "entity/sphere/Sphere.h"
+#include "entity/cylinder/Cylinder.h"
+#include "entity/springModel/SpringModel.h"
 
 struct AppContext {
     AppContext() = default;
@@ -23,10 +26,11 @@ struct AppContext {
     std::unique_ptr<Shader> phongShader;
     std::unique_ptr<Shader> pointShader;
 
-    // TODO --- App data goes here
     std::unique_ptr<PointLight> light;
     std::unique_ptr<Point> lightBulb;
     std::unique_ptr<Quad> quad;
+
+    std::unique_ptr<SpringModel> springModel;
 };
 
 #endif //OPENGL_TEMPLATE_APPCONTEXT_H
