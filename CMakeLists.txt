@@ -15,7 +15,6 @@ endif()
 # Dear ImGui
 set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/dep/imgui)
 include_directories(${IMGUI_DIR} ${IMGUI_DIR}/backends)
-message(${IMGUI_DIR})
 set(IMGUI_SRC
         ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
         ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
@@ -25,6 +24,17 @@ set(IMGUI_SRC
         ${IMGUI_DIR}/imgui_tables.cpp
         ${IMGUI_DIR}/imgui_widgets.cpp
         ${IMGUI_DIR}/misc/cpp/imgui_stdlib.cpp
+)
+
+# ImPlot
+set(IMPLOT_DIR ${CMAKE_SOURCE_DIR}/dep/implot)
+include_directories(${IMPLOT_DIR})
+set(IMPLOT_SRC
+        ${IMPLOT_DIR}/implot.h
+        ${IMPLOT_DIR}/implot_internal.h
+        ${IMPLOT_DIR}/implot.cpp
+        ${IMPLOT_DIR}/implot_items.cpp
+        ${IMPLOT_DIR}/implot_demo.cpp
 )
 
 # Include directories
@@ -56,12 +66,18 @@ set(APP_SRC
         src/app/entity/sphere/Sphere.cpp
         src/app/entity/sphere/Sphere.h
         src/app/entity/springModel/SpringModel.cpp
-        src/app/entity/springModel/SpringModel.h)
+        src/app/entity/springModel/SpringModel.h
+        src/app/spring/SpringSimulation.cpp
+        src/app/spring/SpringSimulation.h
+        src/app/plotting/RollingBuffer.h
+        src/app/plotting/ScrollingBuffer.h
+        src/app/SimpleFunc.h)
 
 # Add executables
 add_executable(Spring_Simulation
         # Dependencies
         ${IMGUI_SRC}
+        ${IMPLOT_SRC}
         ${CMAKE_SOURCE_DIR}/src/glad.c
         # Application
         ${CMAKE_SOURCE_DIR}/src/main.cpp

@@ -7,6 +7,7 @@
 
 
 #include "../../app/AppContext.h"
+#include "imgui.h"
 
 class Gui {
     AppContext &appContext;
@@ -17,6 +18,18 @@ public:
     void render();
 
     void renderLightUI(PointLight &light);
+
+    void renderFpsCounter();
+
+    void renderSimulationParameters();
+
+    void renderFunctionPlots();
+
+    void renderXPlots();
+
+    void renderTrajectory();
+
+    void renderFunctionParams(const std::string &text, SimpleFunc &func, int &i, int i1);
 };
 
 

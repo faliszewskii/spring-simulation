@@ -15,9 +15,15 @@
 #include "entity/sphere/Sphere.h"
 #include "entity/cylinder/Cylinder.h"
 #include "entity/springModel/SpringModel.h"
+#include "spring/SpringSimulation.h"
+#include "plotting/RollingBuffer.h"
+#include "plotting/ScrollingBuffer.h"
+#include "SimpleFunc.h"
 
 struct AppContext {
     AppContext() = default;
+
+    std::pair<int, std::array<float, 100>> rollingMspf;
 
     std::unique_ptr<BaseCamera> camera;
     std::unique_ptr<FrameBufferManager> frameBufferManager;
@@ -31,6 +37,27 @@ struct AppContext {
     std::unique_ptr<Quad> quad;
 
     std::unique_ptr<SpringModel> springModel;
+    std::unique_ptr<SpringSimulation> springSimulation;
+
+    float lastFrameTimeMs;
+    bool running;
+
+    RollingBuffer plotF;
+    RollingBuffer plotG;
+    RollingBuffer plotH;
+    RollingBuffer plotW;
+    float functionPlotHistoricalMax;
+
+    RollingBuffer plotX;
+    RollingBuffer plotXt;
+    RollingBuffer plotXtt;
+    float xPlotHistoricalMax;
+
+    ScrollingBuffer plotTrajectory;
+    float trajectoryHistoricalMax;
+
+    SimpleFunc hFunc;
+    SimpleFunc wFunc;
 };
 
 #endif //OPENGL_TEMPLATE_APPCONTEXT_H

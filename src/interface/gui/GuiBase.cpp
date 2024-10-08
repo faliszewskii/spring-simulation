@@ -6,12 +6,14 @@
 #include "Gui.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "backends/imgui_impl_glfw.h"
+#include "implot.h"
 #include <glm/gtc/type_ptr.hpp>
 
 GuiBase::GuiBase(AppContext &appContext, GLFWwindow *window) : gui(appContext), appContext(appContext) {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+    ImPlot::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
@@ -67,6 +69,7 @@ GuiBase::~GuiBase() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+    ImPlot::DestroyContext();
 }
 
 void GuiBase::showScene() {

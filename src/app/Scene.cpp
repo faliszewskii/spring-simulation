@@ -24,15 +24,64 @@ Scene::Scene(AppContext &appContext) : appContext(appContext) {
     appContext.lightBulb = std::make_unique<Point>();
 
     appContext.springModel = std::make_unique<SpringModel>(0.5, 1);
+    appContext.springSimulation = std::make_unique<SpringSimulation>();
+    appContext.springSimulation->fieldFunction = [&](float time){ return appContext.hFunc.f(time); };
+    appContext.springSimulation->anchorFunction = [&](float time){ return appContext.wFunc.f(time); };
+
+    appContext.lastFrameTimeMs = glfwGetTime() * 1000;
+    appContext.running = false;
+
+    appContext.springModel->update(appContext.springSimulation->springState.x);
+
+    appContext.functionPlotHistoricalMax = 0;
+    appContext.xPlotHistoricalMax = 0;
+    appContext.trajectoryHistoricalMax = 0;
 }
 
 void Scene::update() {
-    // TODO --- Here goes scene data update.
     appContext.lightBulb->position = appContext.light->position;
     appContext.lightBulb->color = glm::vec4(appContext.light->color, 1);
 
-    float time = glfwGetTime();
-    appContext.springModel->update(0.5*std::sin(time));
+    float timeMs = glfwGetTime() * 1000;
+    int loopsToDo = static_cast<int>((timeMs - appContext.lastFrameTimeMs) / appContext.springSimulation->timeStepMs);
+    appContext.lastFrameTimeMs += loopsToDo * appContext.springSimulation->timeStepMs;
+
+    if(appContext.running) {
+        for(int i = 0; i < loopsToDo; i++)
+            appContext.springSimulation->advanceByStep();
+        appContext.springModel->update(appContext.springSimulation->springState.x);
+
+        appContext.plotF.AddPoint(appContext.springSimulation->time, appContext.springSimulation->f());
+        if(std::abs(appContext.springSimulation->f()) > appContext.functionPlotHistoricalMax)
+            appContext.functionPlotHistoricalMax =std::abs(appContext.springSimulation->f());
+        appContext.plotG.AddPoint(appContext.springSimulation->time, appContext.springSimulation->g());
+        if(std::abs(appContext.springSimulation->g()) > appContext.functionPlotHistoricalMax)
+            appContext.functionPlotHistoricalMax =std::abs(appContext.springSimulation->g());
+        appContext.plotH.AddPoint(appContext.springSimulation->time, appContext.springSimulation->h());
+        if(std::abs(appContext.springSimulation->h()) > appContext.functionPlotHistoricalMax)
+            appContext.functionPlotHistoricalMax =std::abs(appContext.springSimulation->h());
+        appContext.plotW.AddPoint(appContext.springSimulation->time, appContext.springSimulation->w());
+        if(std::abs(appContext.springSimulation->w()) > appContext.functionPlotHistoricalMax)
+            appContext.functionPlotHistoricalMax =std::abs(appContext.springSimulation->w());
+
+
+        appContext.plotX.AddPoint(appContext.springSimulation->time, appContext.springSimulation->springState.x);
+        if(std::abs(appContext.springSimulation->springState.x) > appContext.xPlotHistoricalMax)
+            appContext.xPlotHistoricalMax =std::abs(appContext.springSimulation->springState.x);
+        appContext.plotXt.AddPoint(appContext.springSimulation->time, appContext.springSimulation->springState.v);
+        if(std::abs(appContext.springSimulation->springState.v) > appContext.xPlotHistoricalMax)
+            appContext.xPlotHistoricalMax =std::abs(appContext.springSimulation->springState.v);
+        appContext.plotXtt.AddPoint(appContext.springSimulation->time, appContext.springSimulation->xtt());
+        if(std::abs(appContext.springSimulation->xtt()) > appContext.xPlotHistoricalMax)
+            appContext.xPlotHistoricalMax =std::abs(appContext.springSimulation->xtt());
+
+        appContext.plotTrajectory.AddPoint(appContext.springSimulation->springState.x, appContext.springSimulation->springState.v);
+        if(std::abs(appContext.springSimulation->springState.x) > appContext.trajectoryHistoricalMax)
+            appContext.trajectoryHistoricalMax =std::abs(appContext.springSimulation->springState.x);
+        if(std::abs(appContext.springSimulation->springState.v) > appContext.trajectoryHistoricalMax)
+            appContext.trajectoryHistoricalMax =std::abs(appContext.springSimulation->springState.v);
+    }
+
 }
 
 void Scene::render() {
