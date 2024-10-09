@@ -31,7 +31,7 @@ Scene::Scene(AppContext &appContext) : appContext(appContext) {
     appContext.lastFrameTimeMs = glfwGetTime() * 1000;
     appContext.running = false;
 
-    appContext.springModel->update(appContext.springSimulation->springState.x);
+    appContext.springModel->updateX(appContext.springSimulation->springState.x);
 
     appContext.functionPlotHistoricalMax = 0;
     appContext.xPlotHistoricalMax = 0;
@@ -49,7 +49,8 @@ void Scene::update() {
     if(appContext.running) {
         for(int i = 0; i < loopsToDo; i++)
             appContext.springSimulation->advanceByStep();
-        appContext.springModel->update(appContext.springSimulation->springState.x);
+        appContext.springModel->updateX(appContext.springSimulation->springState.x - appContext.wFunc.f(appContext.springSimulation->time));
+        appContext.springModel->updateHeight(0.5f - appContext.wFunc.f(appContext.springSimulation->time));
 
         appContext.plotF.AddPoint(appContext.springSimulation->time, appContext.springSimulation->f());
         if(std::abs(appContext.springSimulation->f()) > appContext.functionPlotHistoricalMax)

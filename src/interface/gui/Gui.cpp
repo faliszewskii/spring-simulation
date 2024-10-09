@@ -54,7 +54,8 @@ void Gui::renderSimulationParameters() {
     ImGui::SameLine();
     if(ImGui::Button("Reset")) {
         appContext.springSimulation->reset();
-        appContext.springModel->update(appContext.springSimulation->springState.x);
+        appContext.springModel->updateX(appContext.springSimulation->springState.x - appContext.wFunc.f(0));
+        appContext.springModel->updateHeight(0.5f - appContext.wFunc.f(0));
         appContext.plotF.Erase();
         appContext.plotG.Erase();
         appContext.plotH.Erase();
@@ -85,10 +86,10 @@ void Gui::renderSimulationParameters() {
     if(ImGui::CollapsingHeader("Parameters", ImGuiTreeNodeFlags_DefaultOpen)) {
         ImGui::DragFloat("x0", &appContext.springSimulation->startCondition.x, 0.01, -1, 1);
         ImGui::DragFloat("v0", &appContext.springSimulation->startCondition.v, 0.01, -2, 2);
-        ImGui::DragFloat("dt(ms)", &appContext.springSimulation->timeStepMs, 0.1, 0.1, 20);
-        ImGui::DragFloat("m", &appContext.springSimulation->weightMass, 0.1, 0.1, 10);
-        ImGui::DragFloat("c", &appContext.springSimulation->elasticityCoeff, 0.1, 0.1, 10);
-        ImGui::DragFloat("k", &appContext.springSimulation->dampingCoeff, 0.1, 0.1, 10);
+        ImGui::DragFloat("dt(ms)", &appContext.springSimulation->timeStepMs, 0.01, 0.1, 20);
+        ImGui::DragFloat("m", &appContext.springSimulation->weightMass, 0.01, 0.1, 10);
+        ImGui::DragFloat("c", &appContext.springSimulation->elasticityCoeff, 0.01, 0.1, 10);
+        ImGui::DragFloat("k", &appContext.springSimulation->dampingCoeff, 0.01, 0.1, 10);
 
         static int type1 = 0, type2 = 0;
         renderFunctionParams("h(t)", appContext.hFunc, type1, 0);
@@ -105,7 +106,7 @@ void Gui::renderFunctionPlots() {
     appContext.plotW.Span = history;
     static ImPlotAxisFlags flags = ImPlotAxisFlags_NoTickLabels;
     if (ImPlot::BeginPlot("Functions##Functions", ImVec2(-1,300))) {
-        ImPlot::SetupAxes(nullptr, nullptr, flags, flags);
+        ImPlot::SetupAxes("t (s)", "F (N)");
         ImPlot::SetupAxisLimits(ImAxis_X1,0,history, ImGuiCond_Always);
         ImPlot::SetupAxisLimits(ImAxis_Y1,-appContext.functionPlotHistoricalMax, appContext.functionPlotHistoricalMax, ImGuiCond_Always);
         if(!appContext.plotF.Data.empty()) {
@@ -123,9 +124,8 @@ void Gui::renderXPlots() {
     appContext.plotX.Span = history;
     appContext.plotXt.Span = history;
     appContext.plotXtt.Span = history;
-    static ImPlotAxisFlags flags = ImPlotAxisFlags_NoTickLabels;
-    if (ImPlot::BeginPlot("Functions##Functions", ImVec2(-1,300))) {
-        ImPlot::SetupAxes(nullptr, nullptr, flags, flags);
+    if (ImPlot::BeginPlot("Kinematics##Kinematics", ImVec2(-1,300))) {
+        ImPlot::SetupAxes("t (s)", nullptr);
         ImPlot::SetupAxisLimits(ImAxis_X1,0,history, ImGuiCond_Always);
         ImPlot::SetupAxisLimits(ImAxis_Y1,-appContext.xPlotHistoricalMax, appContext.xPlotHistoricalMax, ImGuiCond_Always);
         if(!appContext.plotX.Data.empty()) {
@@ -142,10 +142,9 @@ void Gui::renderTrajectory() {
 
     static float history = 3.0f;
     appContext.plotTrajectory.MaxSize = 250;
-    static ImPlotAxisFlags flags = ImPlotAxisFlags_NoTickLabels;
 
     if (ImPlot::BeginPlot("Trajectory", ImVec2(450,450))) {
-        ImPlot::SetupAxes(nullptr, nullptr, flags, flags);
+        ImPlot::SetupAxes("x (m)", "v (m/s)");
         ImPlot::SetupAxisLimits(ImAxis_X1,-appContext.trajectoryHistoricalMax, appContext.trajectoryHistoricalMax, ImGuiCond_Always);
         ImPlot::SetupAxisLimits(ImAxis_Y1,-appContext.trajectoryHistoricalMax, appContext.trajectoryHistoricalMax, ImGuiCond_Always);
         ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL,0.5f);
@@ -166,9 +165,9 @@ void Gui::renderFunctionParams(const std::string &text, SimpleFunc &func, int &i
     ImGui::Text("%s parameters", text.c_str());
     if(ImGui::Combo(("Type##"+std::to_string(id)).c_str(), &i, types, 5))
         func.type = static_cast<SimpleFunc::Type>(i);
-    ImGui::DragFloat(("Constant##"+std::to_string(id)).c_str(), &func.constant, 0.1, -10, 10);
-    ImGui::DragFloat(("Step time##"+std::to_string(id)).c_str(), &func.stepTime, 0.1, 0.0, 10);
-    ImGui::DragFloat(("Angle speed##"+std::to_string(id)).c_str(), &func.angleSpeed, 0.1, -10, 10);
-    ImGui::DragFloat(("Phase##"+std::to_string(id)).c_str(), &func.phase, 0.1, -10, 10);
+    ImGui::DragFloat(("Constant##"+std::to_string(id)).c_str(), &func.constant, 0.01, -10, 10);
+    ImGui::DragFloat(("Step time##"+std::to_string(id)).c_str(), &func.stepTime, 0.01, 0.0, 10);
+    ImGui::DragFloat(("Angle speed##"+std::to_string(id)).c_str(), &func.angleSpeed, 0.01, -10, 10);
+    ImGui::DragFloat(("Phase##"+std::to_string(id)).c_str(), &func.phase, 0.01, -10, 10);
 
 }

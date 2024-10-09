@@ -21,7 +21,7 @@ struct SimpleFunc{
         Sin = 4
     } type = None;
 
-    float constant = 1;
+    float constant = 0.5;
     float stepTime = 0;
     float angleSpeed = 1;
     float phase = 0;

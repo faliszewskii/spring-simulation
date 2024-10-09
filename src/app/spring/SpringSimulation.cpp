@@ -7,12 +7,12 @@
 
 SpringSimulation::SpringSimulation() {
     time = 0;
-    startCondition = { 0.5f, 0.f };
+    startCondition = { 0, 0.f };
     springState = startCondition;
     timeStepMs = 2;
     weightMass = 1;
-    elasticityCoeff = 10;
-    dampingCoeff = 0.1;
+    elasticityCoeff = 1;
+    dampingCoeff = 1;
     fieldFunction = [](float _){return 0;};
     anchorFunction = [](float _){return 0;};
     ode = [](glm::vec2 y, float dt, std::function<float()> xtt) {

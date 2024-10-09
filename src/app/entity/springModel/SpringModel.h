@@ -22,8 +22,10 @@ class SpringModel {
 public:
     SpringModel(float newHeight, float newLength);
 
-    void update(float newLength);
+    void updateX(float newLength);
     void render(Shader& shader);
+
+    void updateHeight(float newHeight);
 };
 
 

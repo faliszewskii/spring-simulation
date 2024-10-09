@@ -41,6 +41,10 @@ void SpringModel::render(Shader& shader) {
 
 }
 
-void SpringModel::update(float newX) {
+void SpringModel::updateX(float newX) {
     x = newX;
+}
+
+void SpringModel::updateHeight(float newHeight) {
+    height = newHeight;
 }
