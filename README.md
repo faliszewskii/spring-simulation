@@ -1,4 +1,5 @@
-# opengl-template
-Template for OpenGL applications
+# Spring Simulation
 
-![image](https://github.com/faliszewskii/opengl-template/assets/74872004/afc62fb4-7c9b-43ca-985d-d3e666c2ad69)
+University project application for simulating physics of a weight on a spring.
+
+![image](https://github.com/user-attachments/assets/6dd7645d-4510-44f3-bbef-bdffcc7afb39)
