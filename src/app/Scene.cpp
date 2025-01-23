@@ -65,6 +65,12 @@ void Scene::update() {
         if(std::abs(appContext.flywheelModel->getXtt()) > appContext.xPlotHistoricalMax)
             appContext.xPlotHistoricalMax =std::abs(appContext.flywheelModel->getXtt());
 
+        appContext.plotTrajectory.AddPoint(appContext.flywheelModel->getX(), appContext.flywheelModel->getXt());
+        if(std::abs(appContext.flywheelModel->getX()) > appContext.trajectoryHistoricalMax)
+            appContext.trajectoryHistoricalMax =std::abs(appContext.flywheelModel->getX());
+        if(std::abs(appContext.flywheelModel->getXt()) > appContext.trajectoryHistoricalMax)
+            appContext.trajectoryHistoricalMax =std::abs(appContext.flywheelModel->getXt());
+
         // for(int i = 0; i < loopsToDo; i++) {
         //     appContext.flywheelModel->advanceByStep(dt);
         //     // appContext.springSimulation->advanceByStep();

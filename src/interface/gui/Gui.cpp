@@ -82,12 +82,12 @@ void Gui::renderSimulationParameters() {
         float omega = appContext.flywheelModel->getOmega();
         float error = appContext.flywheelModel->getError();
         if(ImGui::DragFloat("R", &R, 0.01, 0.1, 2)) {
-            if(L < R) R = L;
+            if(L < R) R = L-0.001;
             appContext.flywheelModel->updateR(R);
             appContext.flywheelModel->reset();
         }
         if(ImGui::DragFloat("L", &L, 0.01, 0.1, 3)) {
-            if(L < R) L = R;
+            if(L < R) L = R+0.001;
             appContext.flywheelModel->updateL(L);
             appContext.flywheelModel->reset();
         }
