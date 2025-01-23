@@ -26,6 +26,27 @@ set(IMGUI_SRC
         ${IMGUI_DIR}/misc/cpp/imgui_stdlib.cpp
 )
 
+add_subdirectory(dep/glfw)
+
+# Include directories
+include_directories(${CMAKE_SOURCE_DIR}/dep/inc)
+
+# Link directories
+link_directories(${CMAKE_SOURCE_DIR}/dep/lib)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    set(GLAD_GLEW
+            dep/glad/glad.c
+            dep/glad/glad_glfw.h
+    )
+else()
+    set(GLAD_GLEW
+            dep/glew/glad.c
+            dep/glew/glew_glfw.h
+    )
+endif()
+
+
 # ImPlot
 set(IMPLOT_DIR ${CMAKE_SOURCE_DIR}/dep/implot)
 include_directories(${IMPLOT_DIR})
@@ -36,12 +57,6 @@ set(IMPLOT_SRC
         ${IMPLOT_DIR}/implot_items.cpp
         ${IMPLOT_DIR}/implot_demo.cpp
 )
-
-# Include directories
-include_directories(${CMAKE_SOURCE_DIR}/dep/inc)
-
-# Link directories
-link_directories(${CMAKE_SOURCE_DIR}/dep/lib)
 
 set(APP_SRC
         src/interface/gui/GuiBase.cpp
@@ -71,24 +86,27 @@ set(APP_SRC
         src/app/spring/SpringSimulation.h
         src/app/plotting/RollingBuffer.h
         src/app/plotting/ScrollingBuffer.h
-        src/app/SimpleFunc.h)
+        src/app/SimpleFunc.h
+        src/app/entity/flywheelModel/FlywheelModel.cpp
+        src/app/entity/flywheelModel/FlywheelModel.h
+        src/app/flywheel/Flywheel.cpp
+        src/app/flywheel/Flywheel.h)
+
 
 # Add executables
-add_executable(Spring_Simulation
+add_executable(spring_simulation
         # Dependencies
         ${IMGUI_SRC}
         ${IMPLOT_SRC}
-        ${CMAKE_SOURCE_DIR}/src/glad.c
         # Application
         ${CMAKE_SOURCE_DIR}/src/main.cpp
+        ${GLAD_GLEW}
         ${APP_SRC}
 )
-target_include_directories(Spring_Simulation PUBLIC ${IMGUI_DIR})
-
 
 # Link libraries
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")             # macOS
-    target_link_libraries(Spring_Simulation
+    target_link_libraries(spring_simulation
             ${CMAKE_SOURCE_DIR}/dep/lib/libglfw.3.4.dylib
             ${CMAKE_SOURCE_DIR}/dep/lib/libGLEW.2.2.0.dylib
             "-framework OpenGL"
@@ -98,15 +116,16 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")             # macOS
             "-framework CoreFoundation"
     )
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")        # Windows
+    find_package(glm CONFIG REQUIRED)
     find_package(OpenGL REQUIRED)
     include_directories( ${OPENGL_INCLUDE_DIRS})
-    target_link_libraries(Spring_Simulation
-            ${CMAKE_SOURCE_DIR}/dep/lib/glfw3.lib
-            ${CMAKE_SOURCE_DIR}/dep/lib/glew32.lib
+    target_link_libraries(spring_simulation PRIVATE
+            glm::glm
+            glfw
             ${OPENGL_LIBRARIES}
     )
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")          # Linux
-    target_link_libraries(Spring_Simulation
+    target_link_libraries(spring_simulation
             -lglfw
             -lGLEW
             -lGL

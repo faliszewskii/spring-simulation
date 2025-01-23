@@ -13,12 +13,12 @@
 #include "entity/light/PointLight.h"
 #include "entity/point/Point.h"
 #include "entity/sphere/Sphere.h"
-#include "entity/cylinder/Cylinder.h"
 #include "entity/springModel/SpringModel.h"
 #include "spring/SpringSimulation.h"
 #include "plotting/RollingBuffer.h"
 #include "plotting/ScrollingBuffer.h"
 #include "SimpleFunc.h"
+#include "entity/flywheelModel/FlywheelModel.h"
 
 struct AppContext {
     AppContext() = default;
@@ -38,6 +38,8 @@ struct AppContext {
 
     std::unique_ptr<SpringModel> springModel;
     std::unique_ptr<SpringSimulation> springSimulation;
+
+    std::unique_ptr<FlywheelModel> flywheelModel;
 
     float lastFrameTimeMs;
     bool running;

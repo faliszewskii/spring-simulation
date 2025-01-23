@@ -5,7 +5,11 @@
 #ifndef PUMAROBOT_POSNORTEXVERTEX_H
 #define PUMAROBOT_POSNORTEXVERTEX_H
 
-#include "../../glew_glfw.h"
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+    #include "../../../dep/glad/glad_glfw.h"
+#else
+#include "../../../dep/glew/glew_glfw.h"
+#endif
 #include <vector>
 #include "glm/vec3.hpp"
 #include "glm/vec2.hpp"

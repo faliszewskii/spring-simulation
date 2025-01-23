@@ -27,13 +27,13 @@
 
 static void glfw_error_callback(int error, const char* description)
 {
-    fprintf(stderr, "GLFW Error %d: %s\n", error, description);
+    // fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
 void GLAPIENTRY MessageCallback( GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar* message,const void* userParam ) {
-    fprintf( stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
-             ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ),
-             type, severity, message );
+    // fprintf( stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+             // ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ),
+             // type, severity, message );
 }
 
 // Main code
@@ -71,9 +71,16 @@ int main(int, char**)
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
 
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+    if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        return -1;
+    }
+#else
     // Init GLEW
     glewExperimental = GL_TRUE;
     glewInit ();
+#endif
 
     // get version info
     const GLubyte* renderer = glGetString (GL_RENDERER); // get renderer string

@@ -5,8 +5,8 @@
 #include "Cylinder.h"
 
 
-Cylinder::Cylinder() {
-    mesh = std::make_unique<Mesh<PosNorTexVertex>>(generateCylinder(0.5f, 1, 15));
+Cylinder::Cylinder(float r, float h, float slices) {
+    mesh = std::make_unique<Mesh<PosNorTexVertex>>(generateCylinder(r, h, slices));
 }
 
 void Cylinder::render () {

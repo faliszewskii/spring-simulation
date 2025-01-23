@@ -5,7 +5,11 @@
 #ifndef OPENGLMODELEDITOR_FRAMEBUFFERMANAGER_H
 #define OPENGLMODELEDITOR_FRAMEBUFFERMANAGER_H
 
-#include "../../glew_glfw.h"
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+    #include "../../../dep/glad/glad_glfw.h"
+#else
+#include "../../../dep/glew/glew_glfw.h"
+#endif
 
 class FrameBufferManager
 {

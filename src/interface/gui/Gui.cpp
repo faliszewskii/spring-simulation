@@ -15,7 +15,7 @@ void Gui::render() {
     renderSimulationParameters();
 
     if(ImGui::Begin("Plots")) {
-        renderFunctionPlots();
+        // renderFunctionPlots();
         renderXPlots();
         ImGui::End();
     }
@@ -70,30 +70,34 @@ void Gui::renderSimulationParameters() {
     }
     if(ImGui::CollapsingHeader("State", ImGuiTreeNodeFlags_DefaultOpen)) {
         ImGui::Text("Kinematics");
-        ImGui::Text("x:    %s  %.3f", std::signbit(appContext.springSimulation->springState.x)?"":" ", appContext.springSimulation->springState.x);
-        ImGui::Text("xt:   %s  %.3f", std::signbit(appContext.springSimulation->springState.v)?"":" ", appContext.springSimulation->springState.v);
-        ImGui::Text("xtt:  %s  %.3f", std::signbit(appContext.springSimulation->xtt())?"":" ", appContext.springSimulation->xtt());
-
-        ImGui::Text("Forces");
-        ImGui::Text("f(t): %s  %.3f", std::signbit(appContext.springSimulation->f())?"":" ", appContext.springSimulation->f());
-        ImGui::Text("g(t): %s  %.3f", std::signbit(appContext.springSimulation->g())?"":" ", appContext.springSimulation->g());
-        ImGui::Text("h(t): %s  %.3f", std::signbit(appContext.springSimulation->h())?"":" ", appContext.springSimulation->h());
-
-        ImGui::Text("Other");
-        ImGui::Text("w(t): %s  %.3f", std::signbit(appContext.springSimulation->w())?"":" ", appContext.springSimulation->w());
+        ImGui::Text("x:    %s  %.3f", std::signbit(appContext.flywheelModel->getX())?"":" ", appContext.flywheelModel->getX());
+        ImGui::Text("xt:   %s  %.3f", std::signbit(appContext.flywheelModel->getXt())?"":" ", appContext.flywheelModel->getXt());
+        ImGui::Text("xtt:  %s  %.3f", std::signbit(appContext.flywheelModel->getXtt())?"":" ", appContext.flywheelModel->getXtt());
 
     }
     if(ImGui::CollapsingHeader("Parameters", ImGuiTreeNodeFlags_DefaultOpen)) {
-        ImGui::DragFloat("x0", &appContext.springSimulation->startCondition.x, 0.01, -1, 1);
-        ImGui::DragFloat("v0", &appContext.springSimulation->startCondition.v, 0.01, -2, 2);
-        ImGui::DragFloat("dt(ms)", &appContext.springSimulation->timeStepMs, 0.01, 0.1, 20);
-        ImGui::DragFloat("m", &appContext.springSimulation->weightMass, 0.01, 0.1, 10);
-        ImGui::DragFloat("c", &appContext.springSimulation->elasticityCoeff, 0.01, 0.1, 10);
-        ImGui::DragFloat("k", &appContext.springSimulation->dampingCoeff, 0.01, 0.1, 10);
+        float angle = appContext.flywheelModel->getAngle();
+        float L = appContext.flywheelModel->getL();
+        float R = appContext.flywheelModel->getR();
+        float omega = appContext.flywheelModel->getOmega();
+        float error = appContext.flywheelModel->getError();
+        if(ImGui::DragFloat("R", &R, 0.01, 0.1, 2)) {
+            if(L < R) R = L;
+            appContext.flywheelModel->updateR(R);
+            appContext.flywheelModel->reset();
+        }
+        if(ImGui::DragFloat("L", &L, 0.01, 0.1, 3)) {
+            if(L < R) L = R;
+            appContext.flywheelModel->updateL(L);
+            appContext.flywheelModel->reset();
+        }
+        if(ImGui::DragFloat("omega", &omega, 0.01, 0.0, std::numbers::pi*4)) {
+            appContext.flywheelModel->updateOmega(omega);
+        }
+        if(ImGui::DragFloat("error", &error, 0.0001, -0.1, 0.1)) {
+            appContext.flywheelModel->updateError(error);
+        }
 
-        static int type1 = 0, type2 = 0;
-        renderFunctionParams("h(t)", appContext.hFunc, type1, 0);
-        renderFunctionParams("w(t)", appContext.wFunc, type2, 1);
     }
     ImGui::End();
 }
@@ -124,10 +128,14 @@ void Gui::renderXPlots() {
     appContext.plotX.Span = history;
     appContext.plotXt.Span = history;
     appContext.plotXtt.Span = history;
+    static bool movable = false;
+    ImGui::Checkbox("Movable", &movable);
     if (ImPlot::BeginPlot("Kinematics##Kinematics", ImVec2(-1,300))) {
         ImPlot::SetupAxes("t (s)", nullptr);
-        ImPlot::SetupAxisLimits(ImAxis_X1,0,history, ImGuiCond_Always);
-        ImPlot::SetupAxisLimits(ImAxis_Y1,-appContext.xPlotHistoricalMax, appContext.xPlotHistoricalMax, ImGuiCond_Always);
+        if(!movable) {
+            ImPlot::SetupAxisLimits(ImAxis_X1,0,history, ImGuiCond_Always);
+            ImPlot::SetupAxisLimits(ImAxis_Y1,-appContext.xPlotHistoricalMax, appContext.xPlotHistoricalMax, ImGuiCond_Always);
+        }
         if(!appContext.plotX.Data.empty()) {
             ImPlot::PlotLine("x(t)", &appContext.plotX.Data[0].x, &appContext.plotX.Data[0].y, appContext.plotX.Data.size(), 0, 0, 2 * sizeof(float));
             ImPlot::PlotLine("xt(t)", &appContext.plotXt.Data[0].x, &appContext.plotXt.Data[0].y, appContext.plotXt.Data.size(), 0, 0, 2 * sizeof(float));

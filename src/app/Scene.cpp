@@ -36,6 +36,10 @@ Scene::Scene(AppContext &appContext) : appContext(appContext) {
     appContext.functionPlotHistoricalMax = 0;
     appContext.xPlotHistoricalMax = 0;
     appContext.trajectoryHistoricalMax = 0;
+
+    float R = 0.5;
+    float L = 1;
+    appContext.flywheelModel = std::make_unique<FlywheelModel>(R, L, 0, 3.14);
 }
 
 void Scene::update() {
@@ -43,44 +47,60 @@ void Scene::update() {
     appContext.lightBulb->color = glm::vec4(appContext.light->color, 1);
 
     float timeMs = glfwGetTime() * 1000;
-    int loopsToDo = static_cast<int>((timeMs - appContext.lastFrameTimeMs) / appContext.springSimulation->timeStepMs);
-    appContext.lastFrameTimeMs += loopsToDo * appContext.springSimulation->timeStepMs;
+    // int loopsToDo = static_cast<int>((timeMs - appContext.lastFrameTimeMs) / appContext.springSimulation->timeStepMs);
+    // appContext.lastFrameTimeMs += loopsToDo * appContext.springSimulation->timeStepMs;
+    float dt = timeMs - appContext.lastFrameTimeMs;
+    appContext.lastFrameTimeMs = timeMs;
 
     if(appContext.running) {
-        for(int i = 0; i < loopsToDo; i++)
-            appContext.springSimulation->advanceByStep();
-        appContext.springModel->updateX(appContext.springSimulation->springState.x - appContext.wFunc.f(appContext.springSimulation->time));
-        appContext.springModel->updateHeight(0.5f - appContext.wFunc.f(appContext.springSimulation->time));
+        appContext.flywheelModel->advanceByStep(dt);
 
-        appContext.plotF.AddPoint(appContext.springSimulation->time, appContext.springSimulation->f());
-        if(std::abs(appContext.springSimulation->f()) > appContext.functionPlotHistoricalMax)
-            appContext.functionPlotHistoricalMax =std::abs(appContext.springSimulation->f());
-        appContext.plotG.AddPoint(appContext.springSimulation->time, appContext.springSimulation->g());
-        if(std::abs(appContext.springSimulation->g()) > appContext.functionPlotHistoricalMax)
-            appContext.functionPlotHistoricalMax =std::abs(appContext.springSimulation->g());
-        appContext.plotH.AddPoint(appContext.springSimulation->time, appContext.springSimulation->h());
-        if(std::abs(appContext.springSimulation->h()) > appContext.functionPlotHistoricalMax)
-            appContext.functionPlotHistoricalMax =std::abs(appContext.springSimulation->h());
-        appContext.plotW.AddPoint(appContext.springSimulation->time, appContext.springSimulation->w());
-        if(std::abs(appContext.springSimulation->w()) > appContext.functionPlotHistoricalMax)
-            appContext.functionPlotHistoricalMax =std::abs(appContext.springSimulation->w());
+        appContext.plotX.AddPoint(timeMs/1000, appContext.flywheelModel->getX());
+        if(std::abs(appContext.flywheelModel->getX()) > appContext.xPlotHistoricalMax)
+            appContext.xPlotHistoricalMax =std::abs(appContext.flywheelModel->getX());
+        appContext.plotXt.AddPoint(timeMs/1000, appContext.flywheelModel->getXt());
+        if(std::abs(appContext.flywheelModel->getXt()) > appContext.xPlotHistoricalMax)
+            appContext.xPlotHistoricalMax =std::abs(appContext.flywheelModel->getXt());
+        appContext.plotXtt.AddPoint(timeMs/1000, appContext.flywheelModel->getXtt());
+        if(std::abs(appContext.flywheelModel->getXtt()) > appContext.xPlotHistoricalMax)
+            appContext.xPlotHistoricalMax =std::abs(appContext.flywheelModel->getXtt());
 
-
-        appContext.plotX.AddPoint(appContext.springSimulation->time, appContext.springSimulation->springState.x);
-        if(std::abs(appContext.springSimulation->springState.x) > appContext.xPlotHistoricalMax)
-            appContext.xPlotHistoricalMax =std::abs(appContext.springSimulation->springState.x);
-        appContext.plotXt.AddPoint(appContext.springSimulation->time, appContext.springSimulation->springState.v);
-        if(std::abs(appContext.springSimulation->springState.v) > appContext.xPlotHistoricalMax)
-            appContext.xPlotHistoricalMax =std::abs(appContext.springSimulation->springState.v);
-        appContext.plotXtt.AddPoint(appContext.springSimulation->time, appContext.springSimulation->xtt());
-        if(std::abs(appContext.springSimulation->xtt()) > appContext.xPlotHistoricalMax)
-            appContext.xPlotHistoricalMax =std::abs(appContext.springSimulation->xtt());
-
-        appContext.plotTrajectory.AddPoint(appContext.springSimulation->springState.x, appContext.springSimulation->springState.v);
-        if(std::abs(appContext.springSimulation->springState.x) > appContext.trajectoryHistoricalMax)
-            appContext.trajectoryHistoricalMax =std::abs(appContext.springSimulation->springState.x);
-        if(std::abs(appContext.springSimulation->springState.v) > appContext.trajectoryHistoricalMax)
-            appContext.trajectoryHistoricalMax =std::abs(appContext.springSimulation->springState.v);
+        // for(int i = 0; i < loopsToDo; i++) {
+        //     appContext.flywheelModel->advanceByStep(dt);
+        //     // appContext.springSimulation->advanceByStep();
+        // }
+        // appContext.springModel->updateX(appContext.springSimulation->springState.x - appContext.wFunc.f(appContext.springSimulation->time));
+        // appContext.springModel->updateHeight(0.5f - appContext.wFunc.f(appContext.springSimulation->time));
+        //
+        // appContext.plotF.AddPoint(appContext.springSimulation->time, appContext.springSimulation->f());
+        // if(std::abs(appContext.springSimulation->f()) > appContext.functionPlotHistoricalMax)
+        //     appContext.functionPlotHistoricalMax =std::abs(appContext.springSimulation->f());
+        // appContext.plotG.AddPoint(appContext.springSimulation->time, appContext.springSimulation->g());
+        // if(std::abs(appContext.springSimulation->g()) > appContext.functionPlotHistoricalMax)
+        //     appContext.functionPlotHistoricalMax =std::abs(appContext.springSimulation->g());
+        // appContext.plotH.AddPoint(appContext.springSimulation->time, appContext.springSimulation->h());
+        // if(std::abs(appContext.springSimulation->h()) > appContext.functionPlotHistoricalMax)
+        //     appContext.functionPlotHistoricalMax =std::abs(appContext.springSimulation->h());
+        // appContext.plotW.AddPoint(appContext.springSimulation->time, appContext.springSimulation->w());
+        // if(std::abs(appContext.springSimulation->w()) > appContext.functionPlotHistoricalMax)
+        //     appContext.functionPlotHistoricalMax =std::abs(appContext.springSimulation->w());
+        //
+        //
+        // appContext.plotX.AddPoint(appContext.springSimulation->time, appContext.springSimulation->springState.x);
+        // if(std::abs(appContext.springSimulation->springState.x) > appContext.xPlotHistoricalMax)
+        //     appContext.xPlotHistoricalMax =std::abs(appContext.springSimulation->springState.x);
+        // appContext.plotXt.AddPoint(appContext.springSimulation->time, appContext.springSimulation->springState.v);
+        // if(std::abs(appContext.springSimulation->springState.v) > appContext.xPlotHistoricalMax)
+        //     appContext.xPlotHistoricalMax =std::abs(appContext.springSimulation->springState.v);
+        // appContext.plotXtt.AddPoint(appContext.springSimulation->time, appContext.springSimulation->xtt());
+        // if(std::abs(appContext.springSimulation->xtt()) > appContext.xPlotHistoricalMax)
+        //     appContext.xPlotHistoricalMax =std::abs(appContext.springSimulation->xtt());
+        //
+        // appContext.plotTrajectory.AddPoint(appContext.springSimulation->springState.x, appContext.springSimulation->springState.v);
+        // if(std::abs(appContext.springSimulation->springState.x) > appContext.trajectoryHistoricalMax)
+        //     appContext.trajectoryHistoricalMax =std::abs(appContext.springSimulation->springState.x);
+        // if(std::abs(appContext.springSimulation->springState.v) > appContext.trajectoryHistoricalMax)
+        //     appContext.trajectoryHistoricalMax =std::abs(appContext.springSimulation->springState.v);
     }
 
 }
@@ -99,7 +119,8 @@ void Scene::render() {
     appContext.phongShader->setUniform("material.shininess", 256.f);
     appContext.light->setupPointLight(*appContext.phongShader);
 
-    appContext.springModel->render(*appContext.phongShader);
+    // appContext.springModel->render(*appContext.phongShader);
+    appContext.flywheelModel->render(*appContext.phongShader);
 
     appContext.pointShader->use();
     appContext.pointShader->setUniform("view", appContext.camera->getViewMatrix());

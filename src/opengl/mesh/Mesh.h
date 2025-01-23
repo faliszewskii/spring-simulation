@@ -5,7 +5,11 @@
 #ifndef PUMAROBOT_MESH_H
 #define PUMAROBOT_MESH_H
 
-#include "../../glew_glfw.h"
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+    #include "../../../dep/glad/glad_glfw.h"
+#else
+#include "../../../dep/glew/glew_glfw.h"
+#endif
 #include <optional>
 #include "is_vertex.h"
 

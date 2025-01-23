@@ -11,14 +11,14 @@
 #include "../../../opengl/shader/Shader.h"
 
 class Cylinder {
-
     Mesh<PosNorTexVertex> generateCylinder(float radius, float height, int slices);
+
 public:
     std::unique_ptr<Mesh<PosNorTexVertex>> mesh;
     std::vector<PosNorTexVertex> vertices;
     std::vector<unsigned int> indices;
 
-    Cylinder();
+    Cylinder(float r=0.5f, float h=1, float slices = 15);
 
     void render();
 };
