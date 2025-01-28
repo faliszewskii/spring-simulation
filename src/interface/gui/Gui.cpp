@@ -111,8 +111,6 @@ void Gui::renderFunctionPlots() {
     static ImPlotAxisFlags flags = ImPlotAxisFlags_NoTickLabels;
     if (ImPlot::BeginPlot("Functions##Functions", ImVec2(-1,300))) {
         ImPlot::SetupAxes("t (s)", "F (N)");
-        ImPlot::SetupAxisLimits(ImAxis_X1,0,history, ImGuiCond_Always);
-        ImPlot::SetupAxisLimits(ImAxis_Y1,-appContext.functionPlotHistoricalMax, appContext.functionPlotHistoricalMax, ImGuiCond_Always);
         if(!appContext.plotF.Data.empty()) {
             ImPlot::PlotLine("f(t)", &appContext.plotF.Data[0].x, &appContext.plotF.Data[0].y, appContext.plotF.Data.size(), 0, 0, 2 * sizeof(float));
             ImPlot::PlotLine("g(t)", &appContext.plotG.Data[0].x, &appContext.plotG.Data[0].y, appContext.plotG.Data.size(), 0, 0, 2 * sizeof(float));
@@ -151,10 +149,15 @@ void Gui::renderTrajectory() {
     static float history = 3.0f;
     appContext.plotTrajectory.MaxSize = 250;
 
+    static bool movable = false;
+    ImGui::Checkbox("Movable", &movable);
     if (ImPlot::BeginPlot("Trajectory", ImVec2(450,450))) {
         ImPlot::SetupAxes("x (m)", "v (m/s)");
-        ImPlot::SetupAxisLimits(ImAxis_X1,-appContext.trajectoryHistoricalMax, appContext.trajectoryHistoricalMax, ImGuiCond_Always);
-        ImPlot::SetupAxisLimits(ImAxis_Y1,-appContext.trajectoryHistoricalMax, appContext.trajectoryHistoricalMax, ImGuiCond_Always);
+
+        if(!movable) {
+            ImPlot::SetupAxisLimits(ImAxis_X1,-appContext.trajectoryHistoricalMax, appContext.trajectoryHistoricalMax, ImGuiCond_Always);
+            ImPlot::SetupAxisLimits(ImAxis_Y1,-appContext.trajectoryHistoricalMax, appContext.trajectoryHistoricalMax, ImGuiCond_Always);
+        }
         ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL,0.5f);
         if(!appContext.plotTrajectory.Data.empty())
             ImPlot::PlotLine("", &appContext.plotTrajectory.Data[0].x, &appContext.plotTrajectory.Data[0].y, appContext.plotTrajectory.Data.size(), 0, appContext.plotTrajectory.Offset, 2 * sizeof(float));
